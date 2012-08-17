@@ -2,6 +2,8 @@
 
 %h2 Details about #{@movie.title}
 
+= link_to 'Find Movies With Same Director', find_same_director_movie_path(@movie)
+
 %ul#details
   %li
     Rating:
