@@ -1,22 +1,19 @@
 class MoviesController < ApplicationController
 
   def show
-    id = params[:id] # retrieve movie ID from URI route
+    id = params[:id].to_i # retrieve movie ID from URI route
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
   end
   
   def find_same_director
-    id = params[:id] # retrieve movie ID from URI route
-    movie = Movie.find(id)
-    print movie.inspect
-    if movie.director==nil || "".eql?(movie.director) 
-        flash[:notice] = "'#{movie.title}' has no director info"
-        redirect_to movies_path
-    else
-      @movie = movie
-      @movies = Movie.find_same_director(@movie.director)
-    end 
+    @movie = Movie.find(params[:id].to_i)
+    begin
+      @movies = Movie.find_same_director(@movie)
+    rescue WithoutDirectorError => e
+      flash[:notice] = e.message
+      redirect_to movies_path
+    end
   end
 
   def index
@@ -56,18 +53,18 @@ class MoviesController < ApplicationController
   end
 
   def edit
-    @movie = Movie.find params[:id]
+    @movie = Movie.find params[:id].to_i
   end
 
   def update
-    @movie = Movie.find params[:id]
+    @movie = Movie.find params[:id].to_i
     @movie.update_attributes!(params[:movie])
     flash[:notice] = "#{@movie.title} was successfully updated."
     redirect_to movie_path(@movie)
   end
 
   def destroy
-    @movie = Movie.find(params[:id])
+    @movie = Movie.find(params[:id].to_i)
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
